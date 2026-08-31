@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>华东运营数据总览</title>
+
+<style>
+:root{--g:#00B85C;--gd:#009649;--gl:#E8F8EF;--bg:#F0F2F5;--cb:#FFF;--t:#1A1A1A;--ts:#666;--b:#E0E4E8;--sh:0 2px 12px rgba(0,0,0,.06);--r:10px;--rd:#D32F2F;--rl:#FFEBEE;--gn:#2E7D32;--or:#E65100}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--t);font-size:13px}
+/* ── Header ── */
+.hd{background:linear-gradient(135deg,#009649,#00B85C);color:#fff;padding:10px 20px 8px;position:sticky;top:0;z-index:200;box-shadow:0 2px 10px rgba(0,150,73,.25)}
+.ht{font-size:16px;font-weight:700;letter-spacing:1px;display:inline}
+.hs{font-size:11px;opacity:.8;display:inline;margin-left:12px}
+/* ── Tab bar ── */
+.tb{background:var(--cb);border-bottom:1px solid var(--b);padding:0 12px;position:sticky;top:41px;z-index:100;box-shadow:0 1px 4px rgba(0,0,0,.04)}
+.ti{display:flex;gap:0;justify-content:center;flex-wrap:wrap;max-width:1600px;margin:0 auto}
+.tbn{flex-shrink:0;padding:6px 12px;font-size:12px;font-weight:600;border:none;background:none;cursor:pointer;color:var(--ts);border-bottom:3px solid transparent;margin-bottom:-1px;transition:all .2s;white-space:nowrap}
+.tbn:hover{color:var(--g);background:var(--gl)}
+.tbn.active{color:var(--g);border-bottom-color:var(--g)}
+.tbn.biz{color:var(--or)}.tbn.biz.active{color:var(--or);border-bottom-color:var(--or)}.tbn.biz:hover{background:#FFF3E0}
+/* ── Content ── */
+.ct{max-width:1600px;margin:0 auto;padding:10px 12px 30px}
+.tp{display:none;background:var(--cb);border-radius:var(--r);overflow:hidden;min-height:500px}
+.tp.active{display:block}
+.tp iframe{width:100%;border:none;display:block}
+.lo{display:flex;align-items:center;justify-content:center;padding:60px;color:var(--ts);font-size:14px}
+.sp{width:24px;height:24px;border:3px solid var(--b);border-top-color:var(--g);border-radius:50%;animation:sp .7s linear infinite;margin-right:10px}
+@keyframes sp{to{transform:rotate(360deg)}}
+/* ── Business dashboard ── */
+.db{padding:12px 14px}
+/* Date info bar */
+.di{font-size:12px;color:var(--ts);padding:5px 12px;background:#F5F7FA;border-radius:7px;margin-bottom:6px;display:flex;gap:12px 20px;flex-wrap:wrap}
+.di span{font-weight:600;color:var(--t)}
+/* Hero KPI row - compact layout */
+.hero{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+.hero-grid{display:flex;flex-direction:column;gap:6px;width:100%;height:100%}
+.hero-row{display:flex;gap:8px;flex:1;min-height:0}
+.hero-row .hc{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center}
+.hc{background:#FFF;border:1px solid var(--b);border-radius:7px;padding:5px 8px;min-width:70px;flex:1;text-align:center;border-top:3px solid var(--b)}
+.hl{font-size:10px;color:var(--ts);margin-bottom:2px;white-space:nowrap}
+.hv{font-size:15px;font-weight:700;color:var(--t);line-height:1.2}
+.hc-up{border-top-color:#D32F2F}.hc-up .hv{color:#D32F2F}
+.hc-dn{border-top-color:#2E7D32}.hc-dn .hv{color:#2E7D32}
+/* Sections */
+.sec{margin-bottom:14px;background:#FAFBFC;border-radius:8px;border:1px solid var(--b);overflow:hidden}
+.st{font-size:13px;font-weight:700;color:#1A1A1A;padding:9px 14px;background:linear-gradient(135deg,#E8F8EF,#F0FAF4);border-bottom:1px solid var(--b)}
+.ssub{font-size:11px;color:var(--ts);padding:4px 14px;background:#FFF;border-bottom:1px dashed var(--b)}
+/* Table */
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch}
+table{width:100%;border-collapse:collapse;font-size:12px;min-width:600px}
+thead th{background:#F0F4F8;color:#37474F;font-weight:600;padding:7px 6px;border-bottom:2px solid #CFD8DC;white-space:nowrap;text-align:center;font-size:11px}
+tbody td{padding:6px 6px;border-bottom:1px solid #ECEFF1;text-align:center;white-space:nowrap}
+tbody tr:hover{background:#F5F8FA}
+tbody tr:last-child td{border-bottom:none;font-weight:700;background:#F0F4F8}
+tbody td:first-child{font-weight:600;color:#37474F;background:#FAFBFC;position:sticky;left:0;z-index:1}
+/* Summary */
+.smy{font-size:12px;color:#444;padding:9px 14px;background:#FFFBEB;border-top:1px solid #FFE082;line-height:1.8}
+.smy b{color:#E65100}
+/* Colors & arrows */
+.up{color:#D32F2F!important;font-weight:600}
+.dn{color:#2E7D32!important;font-weight:600}
+/* Action metric colors: good=green, bad=red */
+.good{color:#2E7D32!important;font-weight:600}
+.bad{color:#D32F2F!important;font-weight:600}
+/* Target gap: positive=shortfall=RED, negative=met=GREEN */
+.gap-bad{color:#D32F2F!important;font-weight:700;background:#FFEBEE!important;border-radius:3px}
+.gap-ok{color:#2E7D32!important;font-weight:600}
+/* Compact action tab — 一屏显示 */
+.ac{padding:4px 8px}
+.ac-sec{margin-bottom:6px}
+.ac-st{padding:5px 8px;font-size:11px;font-weight:700}
+.ac-smy{padding:4px 8px;font-size:10px;line-height:1.5;background:#FFFBEB;border-top:1px solid #FFE082}
+/* Note */
+.note{font-size:11px;color:#9E9E9E;padding:7px 14px;background:#FFF;border-top:1px dashed #E0E0E0;line-height:1.5}
+/* Two-col grid */
+.dt{display:grid;grid-template-columns:1fr 1fr;gap:0}
+.dt>div>div:first-child{font-weight:700;padding:7px 14px;font-size:12px}
+/* ── Top layout: KPI left + Rank right ── */
+.top-layout{display:flex;gap:12px;margin-bottom:8px;align-items:stretch}
+.top-kpi{flex:1 1 45%;min-width:320px;display:flex}
+.top-rank{flex:1 1 55%;min-width:360px}
+/* ── Red/Black rank panel ── */
+.rk-panel{background:#FFF;border:1px solid var(--b);border-radius:8px;overflow:hidden;height:100%;display:flex;flex-direction:column}
+.rk-title{font-size:12px;font-weight:700;padding:7px 12px;background:linear-gradient(135deg,#FFF3E0,#FFE0B2);border-bottom:1px solid #FFD54F;color:#BF360C}
+.rk-body{padding:8px 10px;flex:1;overflow:auto}
+.rk-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 16px}
+.rk-row{display:flex;align-items:center;padding:7px 8px;border-bottom:1px solid #F0F0F0;gap:10px;border-radius:5px}
+.rk-row:nth-child(odd){background:#FAFAFA}
+.rk-label{font-size:11px;font-weight:600;color:#37474F;min-width:78px;flex-shrink:0}
+.rk-cells{display:flex;gap:10px;flex-wrap:wrap;flex:1}
+.rk-group{display:flex;align-items:center;gap:4px}
+.rk-gtag{font-size:10px;font-weight:700;padding:2px 6px;border-radius:3px;white-space:nowrap}
+.red-tag{background:#FFEBEE;color:#C62828;border:1px solid #FFCDD2}
+.blk-tag{background:#F3E5F5;color:#4A148C;border:1px solid #E1BEE7}
+.rk-top{display:inline-block;font-size:11px;font-weight:600;color:#C62828;background:#FFF8E1;border:1px solid #FFD54F;border-radius:12px;padding:2px 9px}
+.rk-bot{display:inline-block;font-size:11px;font-weight:600;color:#4A148C;background:#F3E5F5;border:1px solid #CE93D8;border-radius:12px;padding:2px 9px}
+.rk-na{color:#BDBDBD;font-size:11px}
+/* Footer */
+.ft{text-align:center;color:#B0B8C5;font-size:11px;padding:16px 12px 24px}
+@media(max-width:1100px){.top-layout{flex-direction:column}.top-kpi{width:100%;flex:auto}}
+@media(max-width:900px){.dt{grid-template-columns:1fr}.hero{gap:4px}.hc{min-width:70px}}
+@media(max-width:640px){.db{padding:8px}.hv{font-size:16px}}
+</style>
+
+</head>
+
+<body>
+
+<div class="hd">
+
+  <span class="ht">华东运营数据总览</span>
+
+</div>
+
+<div class="tb"><div class="ti" id="tb" style="justify-content:center">
+
+<button class="tbn ov-tbn active" data-tab="overview" onclick="st('overview')">★ 总览</button>
+
+</div></div>
+
+<div class="ct">
+
+<div class="tp active" id="p-overview"><div class="ov">
+
+<div class="ov-h"><h2>TOP / BOT 城市速览</h2></div>
+
+
+
+<!-- ═══ 分类导航 ═══ -->
+
+<div class="ct-wrap">
+
+<table class="ct-tbl">
+
+<tr><td class="ct-lv"><span class="lv-badge l1">一级★★★</span></td><td class="ct-desc">核心数据<br>城市重点跟进</td><td class="ct-tags">
+
+<span class="ct-tag l1" onclick="st('xinfang')">🏠 新房</span>
+
+<span class="ct-tag l1" onclick="st('jkt')">📞 聚客通</span>
+
+<span class="ct-tag l1" onclick="st('biz-daily')">🏢 商业日报</span>
+
+<span class="ct-tag l1" onclick="st('biz-label')">🏷️ 标签细分</span>
+
+<span class="ct-tag l1" onclick="st('biz-action')">📊 商业行动量</span>
+
+<span class="ct-tag l1" onclick="st('jpsj')">🕊️ 海鸥日报</span>
+
+<span class="ct-tag l1" onclick="st('haiou')">📋 海鸥行动量</span>
+
+</td></tr>
+
+<tr><td class="ct-lv"><span class="lv-badge l2">二级★★</span></td><td class="ct-desc">重点项目<br>城市关注</td><td class="ct-tags">
+
+<span class="ct-tag l2" onclick="st('smh')">🏜️ 沙漠化</span>
+
+<span class="ct-tag l2" onclick="st('fangdong')">🏘️ 房东房源</span>
+
+<span class="ct-tag l2" onclick="st('zufang')">🏠 租房项目</span>
+
+</td></tr>
+
+<tr><td class="ct-lv"><span class="lv-badge l3">三级★</span></td><td class="ct-desc">城市了解</td><td class="ct-tags">
+
+<span class="ct-tag l3" onclick="st('syfx')">📱 私域分享</span>
+
+<span class="ct-tag l3" onclick="st('pep')">📦 产品周报</span>
+
+</td></tr>
+
+</table>
+
+</div>
+
+
+
+<div class="ov-card"><div class="ov-ch"><div class="ov-cn"><span class="ov-ic">🏠</span>新房进展</div><div class="ov-cl">月/季达成率 · <a onclick="st('xinfang')">完整报表 →</a></div></div><div class="ov-mt">月完成 75.80w/目标82w（达成92.4%，落后进度1.1pp）；季完成 75.80w/目标227w（完成33.4%）</div><div class="ov-g"><div class="ov-b ov-t"><div class="ov-bl"><span class="ov-bd">▲</span>TOP 城市（月达成率）</div><div class="ov-r"><span class="ov-ci">🥇 合肥</span><span class="ov-v">227.4%</span></div><div class="ov-r"><span class="ov-ci">🥈 常州</span><span class="ov-v">98.1%</span></div><div class="ov-r"><span class="ov-ci">🥉 南京</span><span class="ov-v">75.2%</span></div></div><div class="ov-b ov-bt"><div class="ov-bl"><span class="ov-bd">▼</span>BOT 城市（月达成率）</div><div class="ov-r"><span class="ov-ci">宿迁</span><span class="ov-v">9.1%</span></div><div class="ov-r"><span class="ov-ci">无锡</span><span class="ov-v">45.6%</span></div><div class="ov-r"><span class="ov-ci">苏州</span><span class="ov-v">46.9%</span></div></div></div></div>
+
+
+
+<div class="ov-card"><div class="ov-ch"><div class="ov-cn"><span class="ov-ic">📞</span>聚客通进展</div><div class="ov-cl">签单收入 · <a onclick="st('jkt')">完整报表 →</a></div></div><div class="ov-mt">华东签单总收入 336.0万，连接转化率 60.3%</div><div class="ov-g"><div class="ov-b ov-t"><div class="ov-bl"><span class="ov-bd">▲</span>TOP 城市</div><div class="ov-r"><span class="ov-ci">🥇 常州</span><span class="ov-v">98.9万</span></div><div class="ov-r"><span class="ov-ci">🥈 合肥</span><span class="ov-v">65.3万</span></div><div class="ov-r"><span class="ov-ci">🥉 无锡</span><span class="ov-v">55.2万</span></div></div><div class="ov-b ov-bt"><div class="ov-bl"><span class="ov-bd">▼</span>BOT 城市（签单收入）</div><div class="ov-r"><span class="ov-ci">南京</span><span class="ov-v">12.7万</span></div><div class="ov-r"><span class="ov-ci">杭州</span><span class="ov-v">26.9万</span></div><div class="ov-r"><span class="ov-ci">苏州</span><span class="ov-v">29.8万</span></div></div></div><div class="ov-ex"><strong>连接转化率</strong> TOP：合肥71.1%·常州70.7%·昆山60.6% &nbsp;|&nbsp; BOT：杭州0%·南京36.7%·苏州41.1%</div></div>
+
+
+
+<div class="ov-card"><div class="ov-ch"><div class="ov-cn"><span class="ov-ic">🏜️</span>沙漠化进展</div><div class="ov-cl">售卖量 · <a onclick="st('smh')">完整报表 →</a></div></div><div class="ov-mt">华东售卖总量 1,101个</div><div class="ov-g"><div class="ov-b ov-t"><div class="ov-bl"><span class="ov-bd">▲</span>TOP 城市（售卖量）</div><div class="ov-r"><span class="ov-ci">🥇 常州</span><span class="ov-v">291</span></div><div class="ov-r"><span class="ov-ci">🥈 苏州</span><span class="ov-v">283</span></div><div class="ov-r"><span class="ov-ci">🥉 合肥</span><span class="ov-v">283</span></div></div><div class="ov-b ov-bt"><div class="ov-bl"><span class="ov-bd">▼</span>BOT 城市（售卖量）</div><div class="ov-r"><span class="ov-ci">徐州</span><span class="ov-v">39</span></div><div class="ov-r"><span class="ov-ci">杭州</span><span class="ov-v">37</span></div></div></div></div>
+
+
+
+<div class="ov-card"><div class="ov-ch"><div class="ov-cn"><span class="ov-ic">🏘️</span>房东房源端口</div><div class="ov-cl">7月目标完成率 · <a onclick="st('fangdong')">完整报表 →</a></div></div><div class="ov-mt">华东完成率 52.2%（截至7月29日）</div><div class="ov-g"><div class="ov-b ov-t"><div class="ov-bl"><span class="ov-bd">▲</span>TOP 城市（完成率）</div><div class="ov-r"><span class="ov-ci">🥇 合肥</span><span class="ov-v">86.5%</span></div><div class="ov-r"><span class="ov-ci">🥈 苏州</span><span class="ov-v">65.2%</span></div><div class="ov-r"><span class="ov-ci">🥉 无锡</span><span class="ov-v">64.7%</span></div></div><div class="ov-b ov-bt"><div class="ov-bl"><span class="ov-bd">▼</span>BOT 城市（完成率）</div><div class="ov-r"><span class="ov-ci">南京</span><span class="ov-v">25.9%</span></div><div class="ov-r"><span class="ov-ci">常州</span><span class="ov-v">40.2%</span></div><div class="ov-r"><span class="ov-ci">徐州</span><span class="ov-v">47.0%</span></div></div></div></div>
+
+
+
+<div class="ov-card"><div class="ov-ch"><div class="ov-cn"><span class="ov-ic">📱</span>私域分享获客激励</div><div class="ov-cl">额度使用进度 · <a onclick="st('syfx')">完整报表 →</a></div></div><div class="ov-mt">华东使用进度 26.3%（截至7月29日）</div><div class="ov-g"><div class="ov-b ov-t"><div class="ov-bl"><span class="ov-bd">▲</span>TOP 城市（使用进度）</div><div class="ov-r"><span class="ov-ci">🥇 宿迁</span><span class="ov-v">55.5%</span></div><div class="ov-r"><span class="ov-ci">🥈 徐州</span><span class="ov-v">32.9%</span></div><div class="ov-r"><span class="ov-ci">🥉 杭州</span><span class="ov-v">30.0%</span></div></div><div class="ov-b ov-bt"><div class="ov-bl"><span class="ov-bd">▼</span>BOT 城市（使用进度）</div><div class="ov-r"><span class="ov-ci">常州</span><span class="ov-v">11.2%</span></div><div class="ov-r"><span class="ov-ci">苏州</span><span class="ov-v">12.8%</span></div><div class="ov-r"><span class="ov-ci">南京</span><span class="ov-v">13.0%</span></div></div></div></div>
+
+
+
+<div class="ov-card" style="border-left-color:var(--or)"><div class="ov-ch"><div class="ov-cn"><span class="ov-ic" style="background:#FFF3E0;color:var(--or)">🏢</span>商业日报</div><div class="ov-cl">月达成率 · <a onclick="st('biz-daily')">完整报表 →</a></div></div><div class="ov-mt">华东月达成率 78.9%（截至7月30日）</div><div class="ov-g"><div class="ov-b ov-t"><div class="ov-bl"><span class="ov-bd">▲</span>TOP 城市（月达成率）</div><div class="ov-r"><span class="ov-ci">🥇 南京</span><span class="ov-v">96.5%</span></div><div class="ov-r"><span class="ov-ci">🥈 无锡</span><span class="ov-v">93.7%</span></div><div class="ov-r"><span class="ov-ci">🥉 徐州</span><span class="ov-v">86.8%</span></div></div><div class="ov-b ov-bt"><div class="ov-bl"><span class="ov-bd">▼</span>BOT 城市（月达成率）</div><div class="ov-r"><span class="ov-ci">杭州</span><span class="ov-v">64.9%</span></div><div class="ov-r"><span class="ov-ci">苏州</span><span class="ov-v">82.6%</span></div><div class="ov-r"><span class="ov-ci">合肥</span><span class="ov-v">78.1%</span></div></div></div></div>
+
+
+
+<div class="ov-card"><div class="ov-ch"><div class="ov-cn"><span class="ov-ic">🕊️</span>海鸥日报</div><div class="ov-cl">季度达成率 · <a onclick="st('jpsj')">完整报表 →</a></div></div><div class="ov-mt">华东季度达成率 18.0% · 竞品业绩 604.9 / 目标 3357（季）</div><div class="ov-g"><div class="ov-b ov-t"><div class="ov-bl"><span class="ov-bd">▲</span>TOP 城市（季度达成率）</div><div class="ov-r"><span class="ov-ci">🥇 徐州</span><span class="ov-v">24.7%</span></div><div class="ov-r"><span class="ov-ci">🥈 合肥</span><span class="ov-v">24.5%</span></div><div class="ov-r"><span class="ov-ci">🥉 南京</span><span class="ov-v">19.2%</span></div></div><div class="ov-b ov-bt"><div class="ov-bl"><span class="ov-bd">▼</span>BOT 城市（季度达成率）</div><div class="ov-r"><span class="ov-ci">宿迁</span><span class="ov-v">11.6%</span></div><div class="ov-r"><span class="ov-ci">常州</span><span class="ov-v">12.5%</span></div><div class="ov-r"><span class="ov-ci">苏州</span><span class="ov-v">13.7%</span></div></div></div><div class="ov-ex"><strong>季度达成率</strong>取自竞品数据-海鸥（截至7.29）·月度业绩见竞品业绩-月度</div></div>
+
+
+
+</div></div>
+
+<div class="tp" id="p-xinfang"><div class="lo" id="l-xinfang"><div class="sp"></div>加载新房日报...</div><iframe src="./xinfang-ribao.html" onload="hl('xinfang')" onerror="hf('xinfang')" style="display:none" title="新房日报"></iframe></div>
+
+<div class="tp" id="p-jkt"><div class="lo" id="l-jkt"><div class="sp"></div>加载聚客通报...</div><iframe src="./jkt-report.html" onload="hl('jkt')" onerror="hf('jkt')" style="display:none" title="聚客通报"></iframe></div>
+
+<div class="tp" id="p-smh"><div class="lo" id="l-smh"><div class="sp"></div>加载沙漠化报告...</div><iframe src="./hd-smh.html" onload="hl('smh')" onerror="hf('smh')" style="display:none" title="沙漠化报告"></iframe></div>
+
+<div class="tp" id="p-fangdong"><div class="lo" id="l-fangdong"><div class="sp"></div>加载房东房源端口报告...</div><iframe src="./fangdong-port.html" onload="hl('fangdong')" onerror="hf('fangdong')" style="display:none" title="房东房源端口"></iframe></div>
+
+<div class="tp" id="p-syfx"><div class="lo" id="l-syfx"><div class="sp"></div>加载私域分享报告...</div><iframe src="./hd-syfx.html" onload="hl('syfx')" onerror="hf('syfx')" style="display:none" title="私域分享"></iframe></div>
+
+<div class="tp" id="p-pep"><div class="lo" id="l-pep"><div class="sp"></div>加载产品上线周报...</div><iframe src="./hd-pep-weekly.html" onload="hl('pep')" onerror="hf('pep')" style="display:none" title="产品上线周报"></iframe></div>
+
+
+
+<!-- ═══ 商业日报 ═══ -->
+<div class="tp" id="p-biz-daily"><div class="db">
+<div class="di"><span>数据更新日期：2026年8月31日</span></div>
+<div class="top-layout">
+  <div class="top-kpi"><div class="hero-grid">
+  <div class="hero-row">
+    <div class="hc hc-up"><div class="hl">月达成率</div><div class="hv">70.8%</div></div>
+    <div class="hc hc-up"><div class="hl">月环比</div><div class="hv">↑ 28.5%</div></div>
+    <div class="hc hc-dn"><div class="hl">月同比</div><div class="hv">↓ -23.6%</div></div>
+  </div>
+  <div class="hero-row">
+    <div class="hc hc-up"><div class="hl">季达成率</div><div class="hv">50.1%</div></div>
+    <div class="hc hc-dn"><div class="hl">季环比</div><div class="hv">↓ -25.0%</div></div>
+    <div class="hc hc-dn"><div class="hl">季同比</div><div class="hv">↓ -19.2%</div></div>
+    <div class="hc hc-dn"><div class="hl">年同比</div><div class="hv">↓ -17.2%</div></div>
+  </div>
+  <div class="hero-row">
+    <div class="hc hc-up"><div class="hl">新签率</div><div class="hv">9.4%</div></div>
+    <div class="hc hc-up"><div class="hl">续费率</div><div class="hv">45.1%</div></div>
+    <div class="hc hc-up"><div class="hl">拉回率</div><div class="hv">14.2%</div></div>
+  </div>
+</div></div>
+  <div class="top-rank"><div class="rk-panel"><div class="rk-title">🏆 商业地产主指标红黑榜</div><div class="rk-body rk-grid"><div class="rk-row">
+  <div class="rk-label">月达成率</div>
+  <div class="rk-cells">
+    <div class="rk-group"><span class="rk-gtag red-tag">红榜</span><span class="rk-top">合肥 82.8%</span>&nbsp;<span class="rk-top">昆山 81.4%</span></div>
+    <div class="rk-group"><span class="rk-gtag blk-tag">黑榜</span><span class="rk-bot">宿迁 58.2%</span>&nbsp;<span class="rk-bot">南京 64.2%</span></div>
+  </div>
+</div><div class="rk-row">
+  <div class="rk-label">季达成率</div>
+  <div class="rk-cells">
+    <div class="rk-group"><span class="rk-gtag red-tag">红榜</span><span class="rk-top">徐州 58.2%</span>&nbsp;<span class="rk-top">合肥 55.7%</span></div>
+    <div class="rk-group"><span class="rk-gtag blk-tag">黑榜</span><span class="rk-bot">苏州 47.5%</span>&nbsp;<span class="rk-bot">杭州 47.7%</span></div>
+  </div>
+</div><div class="rk-row">
+  <div class="rk-label">会员增长率</div>
+  <div class="rk-cells">
+    <div class="rk-group"><span class="rk-gtag red-tag">红榜</span><span class="rk-top">合肥 3.5%</span>&nbsp;<span class="rk-top">昆山 0.0%</span></div>
+    <div class="rk-group"><span class="rk-gtag blk-tag">黑榜</span><span class="rk-bot">宿迁 -5.1%</span>&nbsp;<span class="rk-bot">徐州 -3.1%</span></div>
+  </div>
+</div><div class="rk-row">
+  <div class="rk-label">当期续费率</div>
+  <div class="rk-cells">
+    <div class="rk-group"><span class="rk-gtag red-tag">红榜</span><span class="rk-top">常州 56.6%</span>&nbsp;<span class="rk-top">徐州 55.3%</span></div>
+    <div class="rk-group"><span class="rk-gtag blk-tag">黑榜</span><span class="rk-bot">杭州 34.2%</span>&nbsp;<span class="rk-bot">宿迁 41.2%</span></div>
+  </div>
+</div><div class="rk-row">
+  <div class="rk-label">月新签率</div>
+  <div class="rk-cells">
+    <div class="rk-group"><span class="rk-gtag red-tag">红榜</span><span class="rk-top">常州 26.3%</span>&nbsp;<span class="rk-top">合肥 18.5%</span></div>
+    <div class="rk-group"><span class="rk-gtag blk-tag">黑榜</span><span class="rk-bot">杭州 5.7%</span>&nbsp;<span class="rk-bot">南京 9.3%</span></div>
+  </div>
+</div><div class="rk-row">
+  <div class="rk-label">月拉回率</div>
+  <div class="rk-cells">
+    <div class="rk-group"><span class="rk-gtag red-tag">红榜</span><span class="rk-top">徐州 27.0%</span>&nbsp;<span class="rk-top">常州 24.2%</span></div>
+    <div class="rk-group"><span class="rk-gtag blk-tag">黑榜</span><span class="rk-bot">杭州 7.3%</span>&nbsp;<span class="rk-bot">苏州 9.4%</span></div>
+  </div>
+</div></div></div></div>
+</div>
+<div class="sec"><div class="st">业绩明细（月度 / 季度 / 年度）</div><div class="tw"><table><thead><tr><th  rowspan="2">城市</th><th>日业绩</th><th>月度达成</th><th>季度达成</th><th colspan="10">年度业绩</th></tr>
+<tr><th>月达成</th><th>月达成率</th><th>月环比</th><th>月同比</th><th>金铺占比</th><th>季目标</th><th>季达成</th><th>季达成率</th><th>季度缺口</th><th>季环比</th><th>季同比</th><th>年业绩</th><th>年同比</th></tr></thead><tbody><tr><td>杭州</td><td>17.9</td><td>280</td><td>184</td><td>65.9%</td><td class="up">↑ 43.8%</td><td class="dn">↓ -25.9%</td><td class="dn">11.3%</td><td>710</td><td>339</td><td class="dn">47.7%</td><td class="gap-bad">371</td><td class="dn">↓ -28.1%</td><td class="dn">↓ -20.2%</td><td>1,701</td><td class="dn">↓ -19.8%</td></tr><tr><td>南京</td><td>5.4</td><td>138</td><td>89</td><td>64.2%</td><td class="up">↑ 13.8%</td><td class="dn">↓ -27.7%</td><td class="dn">10.8%</td><td>345</td><td>177</td><td>51.3%</td><td class="gap-bad">168</td><td class="dn">↓ -20.9%</td><td class="dn">↓ -22.6%</td><td>844</td><td class="dn">↓ -24.4%</td></tr><tr><td>苏州</td><td>6.6</td><td>135</td><td>91</td><td>67.3%</td><td class="up">↑ 28.6%</td><td class="dn">↓ -25.4%</td><td class="dn">11.9%</td><td>365</td><td>173</td><td class="dn">47.5%</td><td class="gap-bad">192</td><td class="dn">↓ -29.2%</td><td class="dn">↓ -20.9%</td><td>906</td><td class="dn">↓ -18.1%</td></tr><tr><td>合肥</td><td>3.7</td><td>135</td><td>112</td><td class="up">82.8%</td><td class="up">↑ 33.0%</td><td class="dn">↓ -12.1%</td><td class="dn">9.3%</td><td>375</td><td>209</td><td>55.7%</td><td class="gap-bad">166</td><td class="dn">↓ -24.3%</td><td class="dn">↓ -13.1%</td><td>948</td><td class="dn">↓ -14.1%</td></tr><tr><td>无锡</td><td>2.3</td><td>65</td><td>48</td><td class="up">74.6%</td><td class="up">↑ 6.0%</td><td class="dn">↓ -37.7%</td><td class="dn">12.2%</td><td>210</td><td>101</td><td class="dn">48.1%</td><td class="gap-bad">109</td><td class="dn">↓ -16.0%</td><td class="dn">↓ -30.2%</td><td>535</td><td class="dn">↓ -14.3%</td></tr><tr><td>常州</td><td>2</td><td>45</td><td>36</td><td class="up">80.3%</td><td class="up">↑ 35.9%</td><td class="dn">↓ -13.2%</td><td class="dn">10.7%</td><td>135</td><td>68</td><td>50.2%</td><td class="gap-bad">67</td><td class="dn">↓ -27.1%</td><td class="dn">↓ -10.9%</td><td>326</td><td class="dn">↓ -5.8%</td></tr><tr><td>昆山</td><td>1.2</td><td>40</td><td>33</td><td class="up">81.4%</td><td class="up">↑ 17.7%</td><td class="dn">↓ -5.8%</td><td class="dn">8.8%</td><td>126</td><td>65</td><td>51.4%</td><td class="gap-bad">61</td><td class="dn">↓ -24.5%</td><td class="dn">↓ -2.6%</td><td>298</td><td class="up">↑ 80.0%</td></tr><tr><td>宿迁</td><td>0.2</td><td>8</td><td>5</td><td>58.2%</td><td class="up">↑ 100.0%</td><td class="dn">↓ -32.9%</td><td class="dn">19.4%</td><td>21</td><td>10</td><td class="dn">47.9%</td><td class="gap-bad">11</td><td class="dn">↓ -20.6%</td><td class="dn">↓ -22.3%</td><td>49</td><td class="dn">↓ -13.4%</td></tr><tr><td>徐州</td><td>0.7</td><td>17</td><td>14</td><td class="up">80.6%</td><td class="up">↑ 33.9%</td><td class="dn">↓ -24.9%</td><td class="dn">10.7%</td><td>44</td><td>26</td><td>58.2%</td><td class="gap-bad">18</td><td class="dn">↓ -11.4%</td><td class="dn">↓ -17.9%</td><td>107</td><td class="dn">↓ -17.8%</td></tr><tr><td>华东</td><td>40.1</td><td>863</td><td>611</td><td class="up">70.8%</td><td class="up">↑ 28.5%</td><td class="dn">↓ -23.6%</td><td class="dn">10.9%</td><td>2,331</td><td>1,167</td><td>50.1%</td><td class="gap-bad">1,164</td><td class="dn">↓ -25.0%</td><td class="dn">↓ -19.2%</td><td>5,712</td><td class="dn">↓ -17.2%</td></tr></tbody></table></div><div class="smy">📊 <ul style="margin:4px 0 4px 16px;line-height:1.8"><li><b>月度进度</b>：杭州（同比-25.9%）、南京（同比-27.7%）、苏州（同比-25.4%）、合肥（同比-12.1%）、无锡（同比-37.7%）、常州（同比-13.2%）、昆山（同比-5.8%）、宿迁（同比-32.9%）、徐州（同比-24.9%），共9城进度偏慢，建议关注环比/同比下滑趋势</li>
+<li><b>季度进度</b>：杭州（缺口371较大，环比-28.1%，同比-20.2%）、南京（缺口168较大，环比-20.9%，同比-22.6%）、苏州（缺口192较大，环比-29.2%，同比-20.9%）、合肥（缺口166较大，环比-24.3%，同比-13.1%）、无锡（缺口109较大，环比-16.0%，同比-30.2%）、常州（缺口67较大，环比-27.1%，同比-10.9%）、昆山（缺口61较大，环比-24.5%，同比-2.6%）、宿迁（环比-20.6%，同比-22.3%）、徐州（环比-11.4%，同比-17.9%），共9城季度偏差，建议优先补齐缺口较大城市，确保季末达标</li>
+<li><b>年度进度</b>：杭州（同比-19.8%）、南京（同比-24.4%）、苏州（同比-18.1%）、合肥（同比-14.1%）、无锡（同比-14.3%）、常州（同比-5.8%）、宿迁（同比-13.4%）、徐州（同比-17.8%），共8城同比偏弱，关注年度累计趋势</li></ul></div></div>
+<div class="sec"><div class="st">资源 & 会员概览</div><div class="tw"><table><thead><tr><th  rowspan="2">城市</th><th>会员数变化</th><th>会员组成-按来源</th><th>会员组成-按业务类型</th><th colspan="11">各业务类型会员环比</th></tr>
+<tr><th>当前会员数</th><th>环比上月末</th><th>同期环比%</th><th>同比去年%</th><th>主营商业开商业端口会员数</th><th>主营住宅开商业端口会员数</th><th>会员-混合</th><th>会员-写字楼</th><th>会员-商铺</th><th>会员-厂房</th><th>会员-混合(环比)</th><th>会员-写字楼(环比)</th><th>会员-商铺(环比)</th><th>会员-厂房(环比)</th></tr></thead><tbody><tr><td>杭州</td><td>-4</td><td>928</td><td>-28</td><td class="dn">↓ -2.1%</td><td class="dn">↓ -17.4%</td><td>913</td><td>12</td><td>353</td><td>359</td><td>132</td><td>81</td><td>-24</td><td>10</td><td>-9</td><td>-5</td></tr><tr><td>南京</td><td>-1</td><td>638</td><td>-2</td><td class="dn">↓ -30.0%</td><td class="dn">↓ -21.2%</td><td>622</td><td>16</td><td>233</td><td>207</td><td>108</td><td>87</td><td>3</td><td>-12</td><td>1</td><td>6</td></tr><tr><td>苏州</td><td>-6</td><td>654</td><td>-22</td><td class="dn">↓ -2.7%</td><td class="dn">↓ -15.8%</td><td>649</td><td>5</td><td>117</td><td>199</td><td>121</td><td>216</td><td>-7</td><td>-5</td><td>-5</td><td>-4</td></tr><tr><td>合肥</td><td>-1</td><td>676</td><td>8</td><td class="up">↑ 3.5%</td><td class="dn">↓ -11.3%</td><td>605</td><td>60</td><td>342</td><td>252</td><td>45</td><td>32</td><td>-2</td><td>10</td><td>0</td><td>2</td></tr><tr><td>无锡</td><td>-5</td><td>465</td><td>-9</td><td class="dn">↓ -110.0%</td><td class="dn">↓ -15.9%</td><td>458</td><td>5</td><td>77</td><td>95</td><td>153</td><td>138</td><td>-4</td><td>5</td><td>-2</td><td>-6</td></tr><tr><td>常州</td><td>0</td><td>295</td><td>2</td><td class="dn">↓ -130.0%</td><td class="dn">↓ -9.0%</td><td>279</td><td>9</td><td>132</td><td>43</td><td>29</td><td>84</td><td>3</td><td>0</td><td>2</td><td>-1</td></tr><tr><td>昆山</td><td>0</td><td>310</td><td>-6</td><td>→ 0.0%</td><td class="dn">↓ -4.9%</td><td>297</td><td>13</td><td>99</td><td>42</td><td>73</td><td>95</td><td>0</td><td>2</td><td>-4</td><td>-5</td></tr><tr><td>宿迁</td><td>0</td><td>56</td><td>-5</td><td class="dn">↓ -5.1%</td><td class="dn">↓ -13.8%</td><td>45</td><td>11</td><td>51</td><td>0</td><td>0</td><td>0</td><td>-4</td><td>0</td><td>0</td><td>0</td></tr><tr><td>徐州</td><td>-3</td><td>125</td><td>-4</td><td class="dn">↓ -3.1%</td><td class="dn">↓ -21.9%</td><td>113</td><td>10</td><td>124</td><td>0</td><td>0</td><td>0</td><td>-4</td><td>0</td><td>0</td><td>0</td></tr><tr><td>华东</td><td>-20</td><td>4,147</td><td>-66</td><td class="dn">↓ -80.0%</td><td class="dn">↓ -15.4%</td><td>3,981</td><td>141</td><td>1,528</td><td>1,197</td><td>661</td><td>733</td><td>-39</td><td>10</td><td>-17</td><td>-13</td></tr></tbody></table></div><div class="smy">📊 <ul style="margin:4px 0 4px 16px;line-height:1.8"><li><b>月环比下滑</b>：杭州（-2.1%）、南京（-30.0%）、苏州（-2.7%）、无锡（-110.0%）、常州（-130.0%）、宿迁（-5.1%）、徐州（-3.1%），共7城，关注短期流失趋势</li>
+<li><b>同比下降</b>：杭州（-17.4%）、南京（-21.2%）、苏州（-15.8%）、合肥（-11.3%）、无锡（-15.9%）、常州（-9.0%）、昆山（-4.9%）、宿迁（-13.8%）、徐州（-21.9%），共9城，对比去年同期需复盘</li></ul></div></div>
+<div class="sec"><div class="st">开通 & 会员三率</div><div class="tw"><table><thead><tr><th  rowspan="2">城市</th><th>商业体量及开通率</th><th>新签</th><th>续费</th><th colspan="13">拉回</th></tr>
+<tr><th>开通率</th><th>上月末体量</th><th>体量增幅</th><th>体量环比%</th><th>可新签数</th><th>商业新签数</th><th>新签率</th><th>新签率环比</th><th>当月到期数</th><th>当月续费数</th><th>当月续费率</th><th>续费率环比</th><th>可拉回数</th><th>商业拉回数</th><th>拉回率</th><th>拉回率环比</th></tr></thead><tbody><tr><td>杭州</td><td>2,238</td><td class="dn">41.5%</td><td>2,206</td><td class="up">↑ 32.0%</td><td class="up">↑ 150.0%</td><td>776</td><td>44</td><td class="dn">5.7%</td><td class="up">↑ 80.0%</td><td>237</td><td>81</td><td class="dn">34.2%</td><td class="dn">↓ -7.4%</td><td>396</td><td>29</td><td class="dn">7.3%</td><td class="up">↑ 2.0%</td></tr><tr><td>南京</td><td>1,062</td><td>60.1%</td><td>1,063</td><td class="dn">↓ -100.0%</td><td class="dn">↓ -10.0%</td><td>182</td><td>17</td><td class="dn">9.3%</td><td class="dn">↓ -7.5%</td><td>157</td><td>71</td><td class="dn">45.2%</td><td class="dn">↓ -8.6%</td><td>189</td><td>38</td><td class="dn">20.1%</td><td class="up">↑ 10.0%</td></tr><tr><td>苏州</td><td>1,102</td><td>59.3%</td><td>1,135</td><td class="dn">↓ -33.0%</td><td class="dn">↓ -2.9%</td><td>182</td><td>22</td><td class="dn">12.1%</td><td class="dn">↓ -4.7%</td><td>194</td><td>80</td><td class="dn">41.2%</td><td class="dn">↓ -7.3%</td><td>180</td><td>17</td><td class="dn">9.4%</td><td class="up">↑ 130.0%</td></tr><tr><td>合肥</td><td>976</td><td>69.3%</td><td>942</td><td class="up">↑ 34.0%</td><td class="up">↑ 3.6%</td><td>146</td><td>27</td><td class="dn">18.5%</td><td class="dn">↓ -2.6%</td><td>171</td><td>91</td><td>53.2%</td><td class="up">↑ 6.2%</td><td>197</td><td>44</td><td class="dn">22.3%</td><td class="up">↑ 5.6%</td></tr><tr><td>无锡</td><td>738</td><td>63.0%</td><td>736</td><td class="up">↑ 2.0%</td><td class="up">↑ 30.0%</td><td>103</td><td>10</td><td class="dn">9.7%</td><td class="dn">↓ -12.2%</td><td>118</td><td>55</td><td class="dn">46.6%</td><td class="dn">↓ -6.9%</td><td>147</td><td>20</td><td class="dn">13.6%</td><td class="dn">↓ -3.6%</td></tr><tr><td>常州</td><td>393</td><td class="up">75.1%</td><td>404</td><td class="dn">↓ -11.0%</td><td class="dn">↓ -2.7%</td><td>57</td><td>15</td><td class="dn">26.3%</td><td class="up">↑ 16.8%</td><td>106</td><td>60</td><td>56.6%</td><td class="dn">↓ -160.0%</td><td>62</td><td>15</td><td class="dn">24.2%</td><td class="up">↑ 14.0%</td></tr><tr><td>昆山</td><td>453</td><td>68.4%</td><td>444</td><td class="up">↑ 9.0%</td><td class="up">↑ 2.0%</td><td>61</td><td>7</td><td class="dn">11.5%</td><td class="dn">↓ -8.5%</td><td>57</td><td>27</td><td class="dn">47.4%</td><td class="dn">↓ -7.2%</td><td>84</td><td>11</td><td class="dn">13.1%</td><td class="up">↑ 60.0%</td></tr><tr><td>宿迁</td><td>60</td><td class="up">93.3%</td><td>63</td><td class="dn">↓ -3.0%</td><td class="dn">↓ -4.8%</td><td>7</td><td>1</td><td class="dn">14.3%</td><td class="dn">↓ -10.7%</td><td>17</td><td>7</td><td class="dn">41.2%</td><td class="dn">↓ -31.6%</td><td>10</td><td>1</td><td class="dn">10.0%</td><td>→ 0.0%</td></tr><tr><td>徐州</td><td>167</td><td class="up">74.9%</td><td>167</td><td>→ 0.0%</td><td>→ 0.0%</td><td>21</td><td>2</td><td class="dn">9.5%</td><td class="dn">↓ -4.1%</td><td>47</td><td>26</td><td>55.3%</td><td class="dn">↓ -8.1%</td><td>37</td><td>10</td><td class="dn">27.0%</td><td class="up">↑ 17.9%</td></tr><tr><td>华东</td><td>7,189</td><td>57.7%</td><td>7,160</td><td class="up">↑ 29.0%</td><td class="up">↑ 40.0%</td><td>1,535</td><td>145</td><td class="dn">9.4%</td><td class="dn">↓ -2.3%</td><td>1,104</td><td>498</td><td class="dn">45.1%</td><td class="dn">↓ -6.1%</td><td>1,302</td><td>185</td><td class="dn">14.2%</td><td class="up">↑ 3.9%</td></tr></tbody></table></div><div class="smy">📊 <ul style="margin:4px 0 4px 16px;line-height:1.8"><li><b>流失率超20%</b>：杭州(7.3%)、南京(20.1%)、苏州(9.4%)、合肥(22.3%)、无锡(13.6%)、常州(24.2%)、昆山(13.1%)、宿迁(10.0%)、徐州(27.0%) ⚠️高风险</li></ul></div></div>
+<div class="note"></div>
+</div></div>
+
+<!-- ═══ 标签细分 ═══ -->
+<div class="tp" id="p-biz-label"><div class="db">
+<div class="di"><span>数据更新日期：2026年8月31日</span></div>
+<div class="sec"><div class="st">招商-厂房 & 招商-写字楼 业绩总览</div>
+<div class="dt">
+<div style="border-right:1px solid var(--b)"><div style="background:#FFF8E1">招商-厂房</div><div class="tw"><table><thead><tr><th  rowspan="2">城市</th><th colspan="9">招商-厂房</th></tr>
+<tr><th>25年业绩</th><th>26年目标</th><th>26年达成</th><th>年达成率</th><th>缺口</th><th>去年同期</th><th>年同比</th><th>8月业绩</th><th>季度业绩</th></tr></thead><tbody><tr><td>苏州</td><td>83.7</td><td>111</td><td>68.5</td><td>61.7%</td><td>42.5</td><td>67.6</td><td class="up">↑ 1.3%</td><td>7.2</td><td>15.7</td></tr><tr><td>昆山</td><td>7.1</td><td>15</td><td>9.4</td><td>62.6%</td><td>5.6</td><td>8.5</td><td class="up">↑ 10.3%</td><td>0.2</td><td>1.2</td></tr><tr><td>无锡</td><td>55.5</td><td>71</td><td>32.0</td><td class="dn">45.1%</td><td>39.0</td><td>39.4</td><td class="dn">↓ -18.6%</td><td>2.8</td><td>7.9</td></tr><tr><td>常州</td><td>54.9</td><td>69</td><td>26.7</td><td class="dn">38.7%</td><td>42.3</td><td>31.4</td><td class="dn">↓ -14.9%</td><td>3.3</td><td>5.7</td></tr><tr><td>杭州</td><td>75.8</td><td>/</td><td>50.0</td><td>-</td><td>-</td><td>82.4</td><td class="dn">↓ -39.4%</td><td>4.4</td><td>10.3</td></tr><tr><td>南京</td><td>66.1</td><td>/</td><td>35.1</td><td>-</td><td>-</td><td>52.8</td><td class="dn">↓ -33.5%</td><td>2.3</td><td>5.0</td></tr><tr><td>合肥</td><td>101.0</td><td>/</td><td>44.5</td><td>-</td><td>-</td><td>63.5</td><td class="dn">↓ -30.0%</td><td>3.6</td><td>7.1</td></tr><tr><td>徐州</td><td>14.5</td><td>/</td><td>8.3</td><td>-</td><td>-</td><td>7.6</td><td class="up">↑ 9.5%</td><td>0.9</td><td>1.7</td></tr><tr><td>宿迁</td><td>4.4</td><td>/</td><td>1.1</td><td>-</td><td>-</td><td>3.2</td><td class="dn">↓ -67.0%</td><td>0.1</td><td>0.2</td></tr><tr><td>合计</td><td>201.2</td><td>266</td><td>136.7</td><td>51.4%</td><td>129.3</td><td>146.9</td><td class="dn">↓ -7.0%</td><td>13.5</td><td>30.5</td></tr></tbody></table></div></div>
+<div><div style="background:#E3F2FD">招商-写字楼</div><div class="tw"><table><thead><tr><th  rowspan="2">城市</th><th colspan="9">招商-写字楼</th></tr>
+<tr><th>25年业绩</th><th>26年目标</th><th>26年达成</th><th>年达成率</th><th>缺口</th><th>去年同期</th><th>年同比</th><th>8月业绩</th><th>季度业绩</th></tr></thead><tbody><tr><td>苏州</td><td>98.9</td><td>/</td><td>50.6</td><td>-</td><td>/</td><td>61.2</td><td class="up">↑ 17.4%</td><td>4.3</td><td>9.0</td></tr><tr><td>昆山</td><td>17.6</td><td>/</td><td>11.8</td><td>-</td><td>/</td><td>11.5</td><td class="dn">↓ -2.7%</td><td>1.3</td><td>2.6</td></tr><tr><td>无锡</td><td>41.5</td><td>/</td><td>29.6</td><td>-</td><td>/</td><td>31.7</td><td class="up">↑ 6.4%</td><td>2.7</td><td>5.4</td></tr><tr><td>常州</td><td>47.2</td><td>/</td><td>28.6</td><td>-</td><td>/</td><td>29.1</td><td class="up">↑ 1.5%</td><td>3.2</td><td>6.4</td></tr><tr><td>杭州</td><td>285.2</td><td>322.3</td><td>178.6</td><td>55.4%</td><td>143.7</td><td>259.4</td><td class="dn">↓ -31.2%</td><td>14.8</td><td>28.7</td></tr><tr><td>南京</td><td>176.1</td><td>198.9</td><td>145.2</td><td class="up">73.0%</td><td>53.7</td><td>121.2</td><td class="up">↑ 19.9%</td><td>8.5</td><td>19.8</td></tr><tr><td>合肥</td><td>140.5</td><td>158.8</td><td>84.8</td><td>53.4%</td><td>73.9</td><td>83.6</td><td class="up">↑ 1.5%</td><td>8.5</td><td>18.9</td></tr><tr><td>徐州</td><td>10.9</td><td>14.7</td><td>7.5</td><td>57.9%</td><td>6.2</td><td>6.8</td><td class="up">↑ 11.1%</td><td>1.2</td><td>2.1</td></tr><tr><td>宿迁</td><td>2.9</td><td>-</td><td>1.0</td><td>-</td><td>-</td><td>1.4</td><td class="dn">↓ -30.3%</td><td>0.1</td><td>0.3</td></tr><tr><td>合计</td><td>615.5</td><td>694.7</td><td>417.1</td><td>60.0%</td><td>277.6</td><td>472.3</td><td class="dn">↓ -11.7%</td><td>33.1</td><td>69.8</td></tr></tbody></table></div></div>
+</div>
+<div class="smy">📊 <ul style="margin:4px 0 4px 16px;line-height:1.8"><li><b>招商-厂房</b>（13项异常，重点考核：⭐苏州、昆山、无锡、常州）</li>
+<li>  达成率偏低：苏州⭐（61.7%）、昆山⭐（62.6%）、无锡⭐（45.1%）、常州⭐（38.7%）</li>
+<li>  缺口较大：苏州⭐（42.5）、无锡⭐（39.0）、常州⭐（42.3）</li>
+<li>  同比下滑：无锡⭐（-18.6%）、常州⭐（-14.9%）、杭州（-39.4%）、南京（-33.5%）、合肥（-30.0%）、宿迁（-67.0%）</li>
+<li><b>招商-写字楼</b>（8项异常，重点考核：⭐杭州、南京、合肥、徐州）</li>
+<li>  达成率偏低：杭州⭐（55.4%）、合肥⭐（53.4%）、徐州⭐（57.9%）</li>
+<li>  缺口较大：杭州⭐（143.7）、南京⭐（53.7）、合肥⭐（73.9）</li>
+<li>  同比下滑：杭州⭐（-31.2%）、宿迁（-30.3%）</li>
+<li>💡 缺口较大城市优先补齐；达成率偏低城市加快招商节奏</li></ul></div>
+</div>
+<div class="sec"><div class="st">招商-厂房 资源新增</div>
+<div class="dt">
+<div style="border-right:1px solid var(--b)"><div style="background:#FAFAFA">1-8月累计</div><div class="tw"><table><thead><tr><th  rowspan="2">城市</th><th colspan="11">资源新增（1-8月）</th><th>资源新增-8月</th></tr>
+<tr><th>新增资源</th><th>新录</th><th>在库资源</th><th>离职后在职</th><th>重新在职占比</th><th>在库占比</th><th>新录留存率</th><th>会员数</th><th>合作转化率</th><th>新录会员数</th><th>新录合作转化率</th><th>A类月目标</th></tr></thead><tbody><tr><td>苏州</td><td>127</td><td>103</td><td>124</td><td>24</td><td class="dn">18.9%</td><td class="up">97.6%</td><td class="up">98.1%</td><td>118</td><td class="up">92.9%</td><td>102</td><td class="up">99.0%</td><td>28</td></tr><tr><td>昆山</td><td>18</td><td>18</td><td>18</td><td>0</td><td class="dn">0.0%</td><td class="up">100.0%</td><td class="up">100.0%</td><td>16</td><td class="up">88.9%</td><td>16</td><td class="up">88.9%</td><td>10</td></tr><tr><td>无锡</td><td>40</td><td>28</td><td>39</td><td>12</td><td class="dn">30.0%</td><td class="up">97.5%</td><td class="up">100.0%</td><td>38</td><td class="up">95.0%</td><td>27</td><td class="up">96.4%</td><td>12</td></tr><tr><td>常州</td><td>9</td><td>4</td><td>8</td><td>5</td><td>55.6%</td><td class="up">88.9%</td><td class="up">100.0%</td><td>9</td><td class="up">100.0%</td><td>4</td><td class="up">100.0%</td><td>8</td></tr><tr><td>杭州</td><td>9</td><td>4</td><td>6</td><td>5</td><td>55.6%</td><td>66.7%</td><td class="up">75.0%</td><td>7</td><td class="up">77.8%</td><td>4</td><td class="up">100.0%</td><td>-</td></tr><tr><td>南京</td><td>13</td><td>6</td><td>7</td><td>7</td><td>53.8%</td><td>53.8%</td><td>50.0%</td><td>12</td><td class="up">92.3%</td><td>6</td><td class="up">100.0%</td><td>-</td></tr><tr><td>合肥</td><td>10</td><td>3</td><td>7</td><td>7</td><td class="up">70.0%</td><td class="up">70.0%</td><td class="up">100.0%</td><td>8</td><td class="up">80.0%</td><td>2</td><td>66.7%</td><td>-</td></tr><tr><td>徐州</td><td>2</td><td>1</td><td>2</td><td>1</td><td>50.0%</td><td class="up">100.0%</td><td class="up">100.0%</td><td>2</td><td class="up">100.0%</td><td>1</td><td class="up">100.0%</td><td>-</td></tr><tr><td>宿迁</td><td>0</td><td>0</td><td>0</td><td>0</td><td>-</td><td>-</td><td>-</td><td>0</td><td>-</td><td>0</td><td>-</td><td>-</td></tr><tr><td>合计</td><td>228</td><td>167</td><td>211</td><td>61</td><td class="dn">26.8%</td><td class="up">92.5%</td><td class="up">96.4%</td><td>210</td><td class="up">92.1%</td><td>162</td><td class="up">97.0%</td><td>-</td></tr></tbody></table></div></div>
+<div><div style="background:#FAFAFA">8月份</div><div class="tw"><table><thead><tr><th  rowspan="2">城市</th></tr>
+<tr><th>新增资源</th><th>新录</th><th>离职后在职</th><th>A类录入</th><th>A类录入目标达成</th><th>新录会员数</th><th>新录合作转化率</th></tr></thead><tbody><tr><td>苏州</td><td>25</td><td>23</td><td>2</td><td>20</td><td class="up">71.4%</td><td>23</td><td class="up">100.0%</td></tr><tr><td>昆山</td><td>5</td><td>5</td><td>0</td><td>2</td><td class="dn">20.0%</td><td>4</td><td class="up">80.0%</td></tr><tr><td>无锡</td><td>18</td><td>16</td><td>2</td><td>0</td><td class="dn">0.0%</td><td>15</td><td class="up">93.8%</td></tr><tr><td>常州</td><td>1</td><td>1</td><td>0</td><td>0</td><td class="dn">0.0%</td><td>1</td><td class="up">100.0%</td></tr><tr><td>杭州</td><td>1</td><td>1</td><td>0</td><td>0</td><td>-</td><td>0</td><td class="dn">0.0%</td></tr><tr><td>南京</td><td>1</td><td>0</td><td>1</td><td>0</td><td>-</td><td>0</td><td>-</td></tr><tr><td>合肥</td><td>1</td><td>0</td><td>1</td><td>0</td><td>-</td><td>0</td><td>-</td></tr><tr><td>徐州</td><td>0</td><td>0</td><td>0</td><td>0</td><td>-</td><td>0</td><td>-</td></tr><tr><td>宿迁</td><td>0</td><td>0</td><td>0</td><td>0</td><td>-</td><td>0</td><td>-</td></tr><tr><td>合计</td><td>52</td><td>46</td><td>6</td><td>22</td><td>-</td><td>43</td><td class="up">93.5%</td></tr></tbody></table></div></div>
+</div>
+<div class="smy">📊 <ul style="margin:4px 0 4px 16px;line-height:1.8"><li><b>厂房资源新增</b>（14项异常，4城⭐重点考核）</li>
+<li>  在库不足：昆山⭐（18个）、常州⭐（仅8个）、杭州（仅6个）、南京（仅7个）、合肥（仅7个）、徐州（仅2个）、宿迁（仅0个） → 加大招商拓展</li>
+<li>  转化/留存偏低：杭州（留存率75.0%）、南京（留存率50.0%） → 优化合作流程与维护</li>
+<li>  当月未达标/0新增：昆山⭐（达成20.0%极低）、无锡⭐（达成0.0%极低）、常州⭐（达成0.0%极低）、徐州（0新增）、宿迁（0新增） → ⚠️重点排查覆盖盲区</li></ul></div>
+</div>
+<div class="sec"><div class="st">招商-写字楼 资源新增</div>
+<div class="dt">
+<div style="border-right:1px solid var(--b)"><div style="background:#FAFAFA">1-8月累计</div><div class="tw"><table><thead><tr><th  rowspan="2">城市</th><th colspan="11">资源新增（1-8月）</th><th>资源新增-8月</th></tr>
+<tr><th>新增资源</th><th>新录</th><th>在库资源</th><th>离职后在职</th><th>重新在职占比</th><th>在库占比</th><th>新录留存率</th><th>会员数</th><th>合作转化率</th><th>新录会员数</th><th>新录合作转化率</th><th>月录入目标</th></tr></thead><tbody><tr><td>苏州</td><td>14</td><td>8</td><td>10</td><td>6</td><td class="dn">42.9%</td><td class="up">71.4%</td><td class="up">100.0%</td><td>11</td><td class="up">78.6%</td><td>7</td><td class="up">87.5%</td><td>-</td></tr><tr><td>昆山</td><td>7</td><td>6</td><td>7</td><td>1</td><td class="dn">14.3%</td><td class="up">100.0%</td><td class="up">100.0%</td><td>5</td><td class="up">71.4%</td><td>4</td><td>66.7%</td><td>-</td></tr><tr><td>无锡</td><td>14</td><td>8</td><td>14</td><td>6</td><td class="dn">42.9%</td><td class="up">100.0%</td><td class="up">100.0%</td><td>9</td><td>64.3%</td><td>5</td><td>62.5%</td><td>-</td></tr><tr><td>常州</td><td>4</td><td>2</td><td>3</td><td>2</td><td>50.0%</td><td class="up">75.0%</td><td class="up">100.0%</td><td>3</td><td class="up">75.0%</td><td>1</td><td>50.0%</td><td>-</td></tr><tr><td>杭州</td><td>116</td><td>89</td><td>105</td><td>27</td><td class="dn">23.3%</td><td class="up">90.5%</td><td class="up">94.4%</td><td>109</td><td class="up">94.0%</td><td>89</td><td class="up">100.0%</td><td>36</td></tr><tr><td>南京</td><td>71</td><td>46</td><td>59</td><td>25</td><td class="dn">35.2%</td><td class="up">83.1%</td><td class="up">95.7%</td><td>68</td><td class="up">95.8%</td><td>45</td><td class="up">97.8%</td><td>20</td></tr><tr><td>合肥</td><td>15</td><td>7</td><td>11</td><td>8</td><td>53.3%</td><td class="up">73.3%</td><td class="up">71.4%</td><td>14</td><td class="up">93.3%</td><td>6</td><td class="up">85.7%</td><td>24</td></tr><tr><td>徐州</td><td>2</td><td>0</td><td>2</td><td>2</td><td class="up">100.0%</td><td class="up">100.0%</td><td>-</td><td>2</td><td class="up">100.0%</td><td>0</td><td>-</td><td>-</td></tr><tr><td>宿迁</td><td>0</td><td>0</td><td>0</td><td>0</td><td>-</td><td>-</td><td>-</td><td>0</td><td>-</td><td>0</td><td>-</td><td>-</td></tr><tr><td>合计</td><td>243</td><td>166</td><td>211</td><td>77</td><td class="dn">31.7%</td><td class="up">86.8%</td><td class="up">94.6%</td><td>221</td><td class="up">90.9%</td><td>157</td><td class="up">94.6%</td><td>80</td></tr></tbody></table></div></div>
+<div><div style="background:#FAFAFA">8月份</div><div class="tw"><table><thead><tr><th  rowspan="2">城市</th></tr>
+<tr><th>新增</th><th>新录</th><th>离职后在职</th><th>重新在职占比</th><th>目标达成</th><th>新录会员数</th><th>新录合作转化率</th></tr></thead><tbody><tr><td>苏州</td><td>1</td><td>1</td><td>0</td><td>-</td><td>-</td><td>0</td><td>-</td></tr><tr><td>昆山</td><td>1</td><td>1</td><td>0</td><td class="dn">0.0%</td><td>-</td><td>0</td><td class="dn">0.0%</td></tr><tr><td>无锡</td><td>3</td><td>1</td><td>2</td><td>66.7%</td><td>-</td><td>1</td><td class="up">100.0%</td></tr><tr><td>常州</td><td>0</td><td>0</td><td>0</td><td>-</td><td>-</td><td>0</td><td>-</td></tr><tr><td>杭州</td><td>25</td><td>21</td><td>4</td><td class="dn">16.0%</td><td>69.4%</td><td>21</td><td class="up">100.0%</td></tr><tr><td>南京</td><td>6</td><td>4</td><td>2</td><td class="dn">33.3%</td><td class="dn">30.0%</td><td>4</td><td class="up">100.0%</td></tr><tr><td>合肥</td><td>1</td><td>0</td><td>1</td><td class="up">100.0%</td><td class="dn">4.2%</td><td>0</td><td>-</td></tr><tr><td>徐州</td><td>1</td><td>0</td><td>1</td><td class="up">100.0%</td><td>-</td><td>0</td><td>-</td></tr><tr><td>宿迁</td><td>0</td><td>0</td><td>0</td><td>-</td><td>-</td><td>0</td><td>-</td></tr><tr><td>合计</td><td>38</td><td>28</td><td>10</td><td class="dn">26.3%</td><td class="dn">47.5%</td><td>26</td><td class="up">92.9%</td></tr></tbody></table></div></div>
+</div>
+<div class="smy">📊 <ul style="margin:4px 0 4px 16px;line-height:1.8"><li><b>写字楼资源新增</b>（13项异常，3城⭐重点考核）</li>
+<li>  在库不足：苏州（10个）、昆山（仅7个）、无锡（14个）、常州（仅3个）、合肥⭐（11个）、徐州（仅2个）、宿迁（仅0个） → 加大招商拓展</li>
+<li>  转化/留存偏低：无锡（转化率64.3%）、合肥⭐（留存率71.4%） → 优化合作流程与维护</li>
+<li>  当月未达标/0新增：常州（0新增）、南京⭐（达成30.0%未达标）、合肥⭐（达成4.2%极低）、宿迁（0新增） → ⚠️重点排查覆盖盲区</li></ul></div>
+</div>
+<div class="sec"><div class="st">招商资源覆盖情况</div>
+<div class="dt">
+<div style="border-right:1px solid var(--b)"><div style="background:#FFF8E1">招商-厂房</div><div class="tw"><table><thead><tr><th  rowspan="2">城市</th><th colspan="10">招商-厂房-覆盖</th></tr>
+<tr><th>在库资源</th><th>合作率</th><th>覆盖数</th><th>人均覆盖次数</th><th>覆盖率</th><th>200%覆盖</th><th>有效电话覆盖率</th><th>门店覆盖率</th><th>A类客户量</th><th>A类覆盖率</th></tr></thead><tbody><tr><td>苏州</td><td>219</td><td class="dn">36.1%</td><td>180</td><td>1.6</td><td class="up">82.2%</td><td class="dn">42.0%</td><td>65.8%</td><td class="dn">15.1%</td><td>46</td><td class="up">89.1%</td></tr><tr><td>昆山</td><td>26</td><td class="dn">15.4%</td><td>17</td><td>1.7</td><td>65.4%</td><td>50.0%</td><td class="dn">26.9%</td><td class="dn">38.5%</td><td>5</td><td class="dn">0.0%</td></tr><tr><td>无锡</td><td>78</td><td>50.0%</td><td>67</td><td>1.6</td><td class="up">85.9%</td><td class="dn">48.7%</td><td class="up">75.6%</td><td>53.8%</td><td>0</td><td>-</td></tr><tr><td>常州</td><td>32</td><td class="up">84.4%</td><td>31</td><td>2.7</td><td class="up">96.9%</td><td class="up">90.6%</td><td>59.4%</td><td class="up">90.6%</td><td>0</td><td>-</td></tr><tr><td>杭州</td><td>98</td><td>53.1%</td><td>98</td><td>2.8</td><td class="up">100.0%</td><td class="up">81.6%</td><td class="up">71.4%</td><td class="dn">24.5%</td><td>0</td><td>-</td></tr><tr><td>南京</td><td>61</td><td>65.6%</td><td>59</td><td>1.8</td><td class="up">96.7%</td><td>50.8%</td><td class="dn">32.8%</td><td class="dn">36.1%</td><td>0</td><td>-</td></tr><tr><td>合肥</td><td>60</td><td class="up">73.3%</td><td>60</td><td>1.9</td><td class="up">100.0%</td><td>56.7%</td><td>65.0%</td><td class="up">83.3%</td><td>0</td><td>-</td></tr><tr><td>徐州</td><td>18</td><td class="up">72.2%</td><td>18</td><td>1.9</td><td class="up">100.0%</td><td>61.1%</td><td class="up">77.8%</td><td class="dn">44.4%</td><td>0</td><td>-</td></tr><tr><td>宿迁</td><td>1</td><td class="dn">0.0%</td><td>1</td><td>2</td><td class="up">100.0%</td><td class="up">100.0%</td><td class="up">100.0%</td><td class="dn">0.0%</td><td>0</td><td>-</td></tr><tr><td>合计</td><td>593</td><td>50.3%</td><td>-</td><td>531</td><td class="dn">189.4%</td><td class="up">89.5%</td><td>55.5%</td><td>62.9%</td><td>51</td><td class="up">80.4%</td></tr></tbody></table></div></div>
+<div><div style="background:#E3F2FD">招商-写字楼</div><div class="tw"><table><thead><tr><th  rowspan="2">城市</th><th colspan="9">招商-写字楼-覆盖</th></tr>
+<tr><th>在库资源</th><th>合作率</th><th>覆盖数</th><th>人均覆盖次数</th><th>覆盖率</th><th>200%覆盖</th><th>300%覆盖</th><th>ABC类客户量</th><th>ABC类覆盖率</th></tr></thead><tbody><tr><td>苏州</td><td>124</td><td class="dn">41.1%</td><td>119</td><td>1.0</td><td class="up">96.0%</td><td class="up">90.3%</td><td>56.5%</td><td>0</td><td>-</td></tr><tr><td>昆山</td><td>24</td><td>58.3%</td><td>21</td><td>0.9</td><td class="up">87.5%</td><td class="dn">41.7%</td><td class="dn">25.0%</td><td>0</td><td>-</td></tr><tr><td>无锡</td><td>64</td><td class="up">75.0%</td><td>63</td><td>1.0</td><td class="up">98.4%</td><td class="up">85.9%</td><td>50.0%</td><td>0</td><td>-</td></tr><tr><td>常州</td><td>49</td><td class="up">83.7%</td><td>47</td><td>1.0</td><td class="up">95.9%</td><td class="up">93.9%</td><td>65.3%</td><td>0</td><td>-</td></tr><tr><td>杭州</td><td>404</td><td class="dn">32.2%</td><td>400</td><td>1.0</td><td class="up">99.0%</td><td class="up">83.7%</td><td class="dn">48.8%</td><td>55</td><td class="up">98.2%</td></tr><tr><td>南京</td><td>180</td><td class="dn">48.3%</td><td>147</td><td>0.8</td><td class="up">81.7%</td><td class="dn">44.4%</td><td class="dn">30.0%</td><td>43</td><td class="dn">23.3%</td></tr><tr><td>合肥</td><td>111</td><td class="up">79.3%</td><td>111</td><td>1</td><td class="up">100.0%</td><td class="up">79.3%</td><td class="dn">17.1%</td><td>0</td><td>-</td></tr><tr><td>徐州</td><td>14</td><td class="up">92.9%</td><td>12</td><td>0.9</td><td class="up">85.7%</td><td class="up">71.4%</td><td class="dn">35.7%</td><td>0</td><td>-</td></tr><tr><td>宿迁</td><td>2</td><td>50.0%</td><td>2</td><td>1</td><td class="up">100.0%</td><td>50.0%</td><td class="dn">0.0%</td><td>0</td><td>-</td></tr><tr><td>合计</td><td>972</td><td class="dn">48.7%</td><td>922</td><td>0.9</td><td class="up">94.9%</td><td class="up">76.1%</td><td class="dn">42.7%</td><td>98</td><td>65.3%</td></tr></tbody></table></div></div>
+</div>
+<div class="smy">📊 <ul style="margin:4px 0 4px 16px;line-height:1.8"><li><b>招商-厂房</b>（4项异常）</li>
+<li>  电话覆盖率低：昆山（26.9%）</li>
+<li>  门店覆盖率低：苏州（15.1%）、宿迁（0.0%）</li>
+<li>  A类覆盖率低：昆山（0.0%）</li>
+<li><b>招商-写字楼</b>（6项异常）</li>
+<li>  重复覆盖偏高：苏州（300%=56.5%）、无锡（300%=50.0%）、常州（300%=65.3%）、杭州（300%=48.8%）、徐州（300%=35.7%）</li>
+<li>  ABC类覆盖率低：南京（23.3%）</li>
+<li>💡 电话触达不足城市（昆山）加强外呼；门店覆盖不足城市（苏州、宿迁）增加到店；重复覆盖偏高城市（苏州、无锡、常州、杭州、徐州）优化资源分配</li></ul></div>
+</div>
+</div></div>
+
+<!-- ═══ 商业行动量 ═══ -->
+<div class="tp" id="p-biz-action"><div class="db ac">
+<div class="di" style="margin-bottom:4px;padding:4px 8px;font-size:11px"><span>数据更新日期：2026年8月31日</span></div>
+<div class="sec ac-sec">
+  <div class="st ac-st">整体行动量（月 / 日人均）</div>
+  <div class="tw"><table><thead><tr><th  rowspan="2">城市</th><th colspan="8">整体</th><th colspan="3">月</th><th colspan="3">日</th></tr>
+<tr><th>销售数</th><th>经纪人</th><th>覆盖数</th><th>经纪人覆盖率</th><th>有效电话量</th><th>门店有效拜访量</th><th>在店时长(分)</th><th>当月最早签到时间</th><th>当月最晚签出时间</th><th>人均电话</th><th>人均门店拜访数</th><th>人均工作时长</th><th>人均电话</th><th>人均门店拜访数</th><th>人均工作时长</th></tr></thead><tbody><tr><td>华东</td><td>31</td><td class="good">6,977</td><td class="good">6,563</td><td class="up">94.1%</td><td class="good">12,248</td><td class="good">3,658</td><td>111764</td><td>09:34:33</td><td>15:20:02</td><td>395.1</td><td>118</td><td>3,605.3</td><td>23.2</td><td>6.9</td><td>212.1</td></tr><tr><td>常州</td><td>1</td><td class="bad">201</td><td class="bad">200</td><td class="up">99.5%</td><td class="bad">335</td><td class="bad">108</td><td>3276</td><td>10:09:04</td><td>15:07:16</td><td>335</td><td>108</td><td>3,276</td><td>19.7</td><td>6.4</td><td>192.7</td></tr><tr><td>杭州</td><td>9</td><td class="good">2,141</td><td class="good">2,129</td><td class="up">99.4%</td><td>3,477</td><td>947</td><td>36050</td><td>09:53:25</td><td>15:50:26</td><td>386.3</td><td>105.2</td><td class="good">4,005.6</td><td>22.7</td><td>6.2</td><td class="good">235.6</td></tr><tr><td>合肥</td><td>5</td><td>962</td><td>876</td><td class="up">91.1%</td><td>2,073</td><td>665</td><td>16512</td><td>09:58:17</td><td>15:54:27</td><td>414.6</td><td>133</td><td>3,302.4</td><td>24.4</td><td>7.8</td><td>194.3</td></tr><tr><td>昆山</td><td>1</td><td class="bad">337</td><td class="bad">319</td><td class="up">94.7%</td><td class="bad">416</td><td class="bad">135</td><td>2825</td><td>09:19:40</td><td>14:21:33</td><td>416</td><td>135</td><td>2,825</td><td>24.5</td><td>7.9</td><td>166.2</td></tr><tr><td>南京</td><td>5</td><td>1,000</td><td>919</td><td class="up">91.9%</td><td>1,617</td><td>473</td><td>18465</td><td>09:48:43</td><td>15:23:58</td><td>323.4</td><td>94.6</td><td>3,693</td><td>19.0</td><td>5.6</td><td>217.2</td></tr><tr><td>苏州</td><td>7</td><td>1,611</td><td>1,421</td><td class="up">88.2%</td><td>2,821</td><td>893</td><td>24359</td><td>09:04:25</td><td>15:24:04</td><td>403</td><td>127.6</td><td>3,479.9</td><td>23.7</td><td>7.5</td><td>204.7</td></tr><tr><td>无锡</td><td>3</td><td class="bad">725</td><td class="bad">699</td><td class="up">96.4%</td><td class="bad">1,509</td><td class="bad">437</td><td>10277</td><td>08:48:20</td><td>15:18:32</td><td class="good">503</td><td class="good">145.7</td><td>3,425.7</td><td class="good">29.6</td><td class="good">8.6</td><td>201.5</td></tr></tbody></table></div>
+  <div class="smy ac-smy">📊 <ul style="margin:4px 0 4px 16px;line-height:1.8"><li><b>行动量（对比华东均值）</b></li>
+<li>  月人均偏低：南京（拜访94.6） → 均值电话397.3通/拜访121.3次，需提升月度人效</li>
+<li>💡 低于均值70%的城市重点复盘，调整盯盘与考核机制</li></ul></div>
+</div>
+<div class="sec ac-sec">
+  <div class="st ac-st">店人均拜访时长 < 3分钟 — 8月 <span style="color:#D32F2F;font-weight:400;font-size:10px">（目标差正数=未达标，需重点关注）</span></div>
+  <div class="tw"><table><thead><tr><th>城市</th><th>统计数据销售数</th><th>拜访总时长</th><th>见面经纪人累计</th><th>人均服务时长</th><th>拜访门店累计数</th><th>店均服务时长</th><th>门店数</th><th>涉及经纪人数</th><th>门店占比目标</th><th>门店占比</th><th>目标差</th><th>经纪人占比目标</th><th>经纪人占比</th><th>目标差</th></tr></thead><tbody><tr><td>苏州</td><td>7</td><td>24,567</td><td>1,946</td><td>12.6</td><td>899</td><td>27.3</td><td>2</td><td>10</td><td>2.0%</td><td>0.2%</td><td class="gap-ok">-0.0</td><td>5.0%</td><td>0.5%</td><td class="gap-ok">-0.0</td><td>-</td></tr><tr><td>杭州</td><td>11</td><td>39,840</td><td>2,291</td><td>17.4</td><td>1,059</td><td>37.6</td><td>0</td><td>0</td><td>2.0%</td><td>0.0%</td><td class="gap-ok">-0.0</td><td>2.0%</td><td>0.0%</td><td class="gap-ok">-0.0</td><td>-</td></tr><tr><td>合肥</td><td>6</td><td>20,239</td><td>1,173</td><td>17.3</td><td>807</td><td>25.1</td><td>1</td><td>14</td><td>3.0%</td><td>0.1%</td><td class="gap-ok">-0.0</td><td>10.0%</td><td>1.2%</td><td class="gap-ok">-0.1</td><td>-</td></tr><tr><td>昆山</td><td>1</td><td>2,825</td><td>224</td><td>12.6</td><td>135</td><td>20.9</td><td>0</td><td>0</td><td>3.0%</td><td>0.0%</td><td class="gap-ok">-0.0</td><td>10.0%</td><td>0.0%</td><td class="gap-ok">-0.1</td><td>-</td></tr><tr><td>南京</td><td>5</td><td>18,465</td><td>1,421</td><td>13.0</td><td>474</td><td>39.0</td><td>0</td><td>0</td><td>3.0%</td><td>0.0%</td><td class="gap-ok">-0.0</td><td>10.0%</td><td>0.0%</td><td class="gap-ok">-0.1</td><td>-</td></tr><tr><td>无锡</td><td>3</td><td>9,609</td><td>533</td><td>18.0</td><td>414</td><td>23.2</td><td>1</td><td>5</td><td>3.0%</td><td>0.2%</td><td class="gap-ok">-0.0</td><td>10.0%</td><td>0.9%</td><td class="gap-ok">-0.1</td><td>-</td></tr><tr><td>常州</td><td>2</td><td>7,346</td><td>415</td><td>17.7</td><td>236</td><td>31.1</td><td>2</td><td>9</td><td>5.0%</td><td>0.8%</td><td class="gap-ok">-0.0</td><td>5.0%</td><td>2.2%</td><td class="gap-ok">-0.0</td><td>-</td></tr><tr><td>华商合计</td><td>35</td><td>122,891</td><td>8,003</td><td>15.4</td><td>4,024</td><td>30.5</td><td>6</td><td>38</td><td>-</td><td>0.1%</td><td>-</td><td>-</td><td>0.5%</td><td>-</td><td>-</td></tr></tbody></table></div>
+  <div class="smy ac-smy">📊 各城市店均拜访时长整体达标，无显著低于3分钟的异常城市。✅</div>
+</div>
+</div></div>
+
+</div>
+<div class="ft">华东运营数据总览 | 商业看板数据来源于Excel模板 | 刷新页面获取最新数据</div>
+<script>
+function st(t){
+  document.querySelectorAll('.tbn').forEach(b=>b.classList.remove('active'));
+  var btn=document.querySelector('.tbn[data-tab="'+t+'"]');if(btn)btn.classList.add('active');
+  document.querySelectorAll('.tp').forEach(p=>p.classList.remove('active'));
+  var p=document.getElementById('p-'+t);if(p)p.classList.add('active');
+  var ifr=p?p.querySelector('iframe'):null;
+  if(ifr&&ifr.style.display==='none'){ifr.style.display='block';}
+  history.replaceState(null,'','#'+t);
+  if(!t.startsWith('biz-'))ai(t);
+}
+function hl(t){
+  var l=document.getElementById('l-'+t),ifr=document.querySelector('#p-'+t+' iframe');
+  if(l)l.style.display='none';if(ifr){ifr.style.display='block';ai(t);}
+}
+function hf(t){
+  var l=document.getElementById('l-'+t),ifr=document.querySelector('#p-'+t+' iframe');
+  if(l)l.style.display='none';if(ifr)ifr.style.display='block';
+}
+function ai(t){
+  var p=document.getElementById('p-'+t);if(!p)return;
+  var ifr=p.querySelector('iframe');if(!ifr||ifr.style.display==='none')return;
+  try{
+    var d=ifr.contentDocument||ifr.contentWindow.document;
+    if(d)ifr.style.height=Math.max(d.documentElement.scrollHeight,d.body.scrollHeight,600)+'px';
+  }catch(e){ifr.style.height='800px';}
+}
+setTimeout(function(){
+  document.querySelectorAll('.lo').forEach(function(s){s.style.display='none';});
+  document.querySelectorAll('.tp iframe').forEach(function(f){f.style.display='block';});
+},15000);
+(function(){
+  var h=window.location.hash.replace('#','');
+  var vt=['xinfang','jkt','smh','fangdong','syfx','pep','biz-daily','biz-label','biz-action'];
+  if(h&&vt.includes(h))st(h);
+})();
+window.addEventListener('resize',function(){
+  var a=document.querySelector('.tbn.active');
+  if(a&&!a.dataset.tab.startsWith('biz-'))ai(a.dataset.tab);
+});
+setInterval(function(){
+  var a=document.querySelector('.tbn.active');
+  if(a&&!a.dataset.tab.startsWith('biz-'))ai(a.dataset.tab);
+},5000);
+</script>
+</body>
+</html>
